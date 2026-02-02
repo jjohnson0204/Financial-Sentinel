@@ -116,7 +116,7 @@ A modern Spring Boot application that leverages Kafka streaming, machine learnin
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/financial-sentinel.git
+   git clone https://github.com/jjohnson0204/Financial-Sentinel.git
    cd financial-sentinel
    ```
 
