@@ -1,0 +1,12 @@
+user_id,amount,description,category
+user_123,12.50,Starbucks Coffee,FOOD_DRINK
+user_123,5500.00,High End Jewelry,SHOPPING
+user_123,45.00,Uber Trip,TRANSPORT
+user_123,200.00,Crypto Exchange,CRYPTO
+user_123,1500.00,Monthly House Rent,HOUSING
+user_123,85.20,Walmart Grocery,SHOPPING
+user_123,9500.00,Whale Bitcoin Buy,CRYPTO
+user_123,3200.00,Apple Store Pro Display,SHOPPING
+user_123,15.00,Netflix Subscription,ENTERTAINMENT
+user_123,450.00,Weekend Gas & Snacks,TRANSPORT
+user_123,12000.00,Downpayment for Car,TRANSPORT

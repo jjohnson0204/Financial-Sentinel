@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Sentinel | Live SOC</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+            --stable: #22c55e;
+            --warning: #f59e0b;
+            --critical: #ef4444;
+            --focus: #38bdf8;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        h1 span { color: var(--text); font-weight: 700; }
+
+        .stats-bar {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            background: var(--card);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            border: 1px solid #334155;
+            align-items: center;
+        }
+
+        .stat span { font-weight: bold; margin-left: 5px; }
+
+        #main-layout {
+            display: flex;
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+            align-items: flex-start;
+        }
+
+        #alerts {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #sidebar {
+            flex: 1;
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            position: sticky;
+            top: 40px;
+            border: 1px solid #334155;
+        }
+
+        .alert-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 6px solid #64748b;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Risk Level Colors */
+        .STABLE { border-left-color: var(--stable); }
+        .WARNING { border-left-color: var(--warning); }
+        .CRITICAL { border-left-color: var(--critical); }
+
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .description { font-size: 1.1rem; font-weight: 600; }
+        .amount { font-family: 'Courier New', monospace; color: #cbd5e1; font-weight: bold; }
+
+        .badges { display: flex; gap: 8px; margin-bottom: 12px; }
+        .risk-badge { font-size: 0.7rem; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; background: rgba(255,255,255,0.05); font-weight: bold; }
+        .focus-badge { font-size: 0.7rem; text-transform: uppercase; padding: 2px 8px; border-radius: 99px; background: rgba(56, 189, 248, 0.1); color: var(--focus); }
+
+        .advice { font-size: 0.9rem; color: #94a3b8; line-height: 1.5; margin: 0; border-top: 1px solid #334155; padding-top: 10px; }
+
+        .spender-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 0.9rem;
+        }
+
+        .btn-action {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover { background: #475569; }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>🛰️ FINANCIAL <span>SENTINEL</span></h1>
+
+<div class="stats-bar">
+    <div class="stat">Live Feed: <span id="total-count">0</span></div>
+    <div class="stat">Anomalies: <span id="anomaly-count" style="color: var(--warning)">0</span></div>
+    <button class="btn-action" onclick="clearFeed()">Clear Feed</button>
+</div>
+
+<div id="main-layout">
+    <div id="alerts">
+    </div>
+
+    <div id="sidebar">
+        <h3 style="margin-top:0">🏆 Top Spenders</h3>
+        <div id="leaderboard">Loading database stats...</div>
+        <button class="btn-action" style="width:100%; margin-top:20px" onclick="updateLeaderboard()">Refresh Stats</button>
+    </div>
+</div>
+
+<script>
+    let total = 0;
+    let anomalies = 0;
+
+    // --- SSE Event Stream ---
+    const eventSource = new EventSource('/api/alerts/stream');
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const container = document.getElementById('alerts');
+
+        total++;
+        document.getElementById('total-count').innerText = total;
+        if (data.riskLevel !== 'STABLE') {
+            anomalies++;
+            document.getElementById('anomaly-count').innerText = anomalies;
+        }
+
+        const card = `
+            <div class="alert-card ${data.riskLevel}">
+                <div class="header-row">
+                    <span class="description">${data.description}</span>
+                    <span class="amount">$${parseFloat(data.amount).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="badges">
+                    <span class="risk-badge">${data.riskLevel}</span>
+                    <span class="focus-badge">🎯 ${data.categoryFocus}</span>
+                </div>
+                <p class="advice">🤖 ${data.recommendation}</p>
+            </div>
+        `;
+        container.insertAdjacentHTML('afterbegin', card);
+    };
+
+    // --- Persistence Insights (H2) ---
+    async function updateLeaderboard() {
+        try {
+            const res = await fetch('/api/transactions/summary');
+            if (!res.ok) throw new Error('DB Offline');
+            const data = await res.json();
+
+            const html = data.length > 0 ? data.map(u => `
+                <div class="spender-row">
+                    <span>${u.userId}</span>
+                    <span style="color:var(--focus); font-weight:bold">$${u.totalSpent.toLocaleString()}</span>
+                </div>
+            `).join('') : '<p style="font-size:0.8rem; color:#64748b">No records in H2 database yet.</p>';
+
+            document.getElementById('leaderboard').innerHTML = html;
+        } catch (e) {
+            document.getElementById('leaderboard').innerHTML = "Error fetching stats.";
+        }
+    }
+
+    function clearFeed() {
+        document.getElementById('alerts').innerHTML = '';
+        total = 0;
+        anomalies = 0;
+        document.getElementById('total-count').innerText = '0';
+        document.getElementById('anomaly-count').innerText = '0';
+    }
+
+    // Initial load and auto-refresh every 10 seconds
+    updateLeaderboard();
+    setInterval(updateLeaderboard, 10000);
+
+</script>
+</body>
+</html>
