@@ -141,7 +141,7 @@ A modern Spring Boot application that leverages Kafka streaming, machine learnin
    ```
 
 5. **Access the dashboard**
-   - Open your browser and navigate to: `http://localhost:8080`
+   - Open your browser and navigate to: `http://localhost:8080/index.html`
    - H2 Console: `http://localhost:8080/h2-console`
    - Kafka UI: `http://localhost:8081`
 
@@ -164,14 +164,14 @@ ingestionService.processTransactionsFromCSV("classpath:test.csv");
 ### CSV Format
 
 ```csv
-userId,amount,description,timestamp,location
-user123,45.99,Lunch at Italian Restaurant,2025-01-15T12:30:00,New York
-user456,1200.00,MacBook Pro 14,2025-01-15T14:00:00,San Francisco
+user_id,amount,description,category
+user_123,5500.00,High End Jewelry,SHOPPING
+user_123,9500.00,Whale Bitcoin Buy,CRYPTO
 ```
 
 ### Real-Time Monitoring
 
-1. Access the dashboard at `http://localhost:8080`
+1. Access the dashboard at `http://localhost:8080/index.html`
 2. Watch real-time alerts as transactions are processed
 3. View risk levels, categories, and coaching recommendations
 4. Check the "Top Spenders" leaderboard for analytics
